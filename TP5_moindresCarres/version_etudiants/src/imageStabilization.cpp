@@ -228,9 +228,17 @@ int main(int argc, char **argv)
     M(1,0) = -x(1); //-s
     M(1,1) =  x(0); //c
 
+    // enforce rotation
+    Eigen::JacobiSVD<Eigen::Matrix2d>svd(
+      M.topLeftCorner(2,2), Eigen::ComputeFullU|Eigen::ComputeFullV);
+
+    M.topLeftCorner(2,2) = svd.matrixU() * svd.matrixV().transpose();
+
     // extract translation
     M(0,2) = x(2); //tx
     M(1,2) = x(3); //ty
+
+
 
     // use M
     H = HcenteringInv * M * Hcentering;
