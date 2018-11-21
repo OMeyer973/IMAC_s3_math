@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <utility>   // std::pair
 #include <ctime>
+#include <tgmath.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -16,6 +17,26 @@
 // sudo apt-get install libopencv-dev 
 //g++ -Wall -Wno-unused-local-typedefs imageStabilization.cpp -lopencv_core -lopencv_highgui -lopencv_imgproc -lopencv_video -I ~/eigen  -o stabilisation
 
+
+double clamp (double v, double lo, double hi) {
+  if (v<lo) return lo;
+  if (v>hi) return hi;
+  return v;
+}
+
+//does not work
+double smoothClamp (double v, double lo, double hi, double smoothness) {
+  return ((atan(v / smoothness) + 1.0) / 2.0) * (hi-lo) + lo;
+}
+
+double fLerp(double a, double b, double f) {
+    return (a * (1.0 - f)) + (b * f);
+}
+
+//linear interpolation on Eigen::Matrix3d
+Eigen::Matrix3d m3dLerp(Eigen::Matrix3d a, Eigen::Matrix3d b, double f) {
+    return (a * (1.0 - f)) + (b * f);
+}
 
 //////////////////////////////////////////////////////////////////////////////////
 int main(int argc, char **argv)
@@ -234,14 +255,27 @@ int main(int argc, char **argv)
 
     M.topLeftCorner(2,2) = svd.matrixU() * svd.matrixV().transpose();
 
+    // clamp Rotation
+    double angleMax = 15 *M_PI / 180.0;
+    double angle = asin(M(0,1));
+    angle = clamp(angle, -angleMax, angleMax);
+    M(0,0) = M(1,1) = cos(angle);
+    M(0,1) = sin(angle);
+    M(1,0) = -sin(angle);
+
     // extract translation
     M(0,2) = x(2); //tx
     M(1,2) = x(3); //ty
 
-
+    //clamp translation
+    double translationMax = 100;
+    M(0,2) = clamp(M(0,2), -translationMax, translationMax);
+    M(1,2) = clamp(M(1,2), -translationMax, translationMax);
+    //std::cout << M(0,2) << std::endl;
 
     // use M
     H = HcenteringInv * M * Hcentering;
+    H = m3dLerp(H, Eigen::Matrix3d::Identity(), 0.2);
     
     // if not enough points to track
     if(currentPts.cols() < 2)

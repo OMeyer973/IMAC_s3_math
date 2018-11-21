@@ -1,4 +1,4 @@
-# Install script for directory: /home/olivier/Documents/IMAC_s3_math/TP5_moindresCarres/version_etudiants
+# Install script for directory: /home/6im2/omeyer/Documents/IMAC_s3_math/TP5_moindresCarres/version_etudiants
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -40,5 +40,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/olivier/Documents/IMAC_s3_math/TP5_moindresCarres/version_etudiants/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/6im2/omeyer/Documents/IMAC_s3_math/TP5_moindresCarres/version_etudiants/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")
